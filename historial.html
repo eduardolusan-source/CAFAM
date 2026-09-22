@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAFAM · Historial de sesiones</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--guinda:#7B1A2E;--terracota:#C44B1B;--dorado:#E8A020;--cafe:#4A1A0E;--crema:#FDF3E0;--rosa:#F5E8EC;--verde:#2E6B3E;--tinta:#2B1B16;--gris:#d9d9d9;--gris2:#bfbfbf}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--crema);color:var(--tinta);font-family:"Nunito Sans",system-ui,sans-serif;font-size:15px}
+  header{background:var(--guinda);color:#fff;padding:14px 22px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  header h1{margin:0;font-size:19px;font-weight:900}
+  .acciones button{font:inherit;font-weight:700;padding:9px 14px;border-radius:9px;border:2px solid #fff;background:transparent;color:#fff;cursor:pointer;margin-left:6px}
+  main{max-width:1240px;margin:0 auto;padding:16px}
+  .estado{font-size:14px;color:#6b4a3a;margin:0 0 12px}
+  .lista{background:#fff;border-radius:12px;padding:12px 16px;overflow-x:auto}
+  .lista table{border-collapse:collapse;width:100%}
+  .lista th,.lista td{padding:8px 10px;text-align:left;border-bottom:1px solid #eee;white-space:nowrap}
+  .lista th{font-size:12px;color:#6b4a3a;text-transform:uppercase;letter-spacing:.4px}
+  .lista td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .lista button{font:inherit;font-weight:700;padding:6px 12px;border-radius:8px;border:2px solid var(--cafe);background:#fff;color:var(--cafe);cursor:pointer}
+  .detalle .barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  .detalle .barra button{font:inherit;font-weight:700;padding:9px 14px;border-radius:9px;border:2px solid var(--cafe);background:#fff;color:var(--cafe);cursor:pointer}
+  .detalle .barra button.primario{background:var(--dorado);border-color:var(--dorado)}
+  .detalle .barra h2{margin:0;font-size:17px;color:var(--cafe);flex:1}
+  .hoja{background:#fff;padding:14px;border-radius:8px;margin-bottom:22px;overflow-x:auto}
+  .cabecera{display:grid;grid-template-columns:1fr 1fr;border:1px solid #000}
+  .cabecera>div{padding:8px 10px;background:var(--gris);border-right:1px solid #000}
+  .cabecera>div:last-child{border-right:none}
+  .cabecera .titulo{font-weight:900;font-size:16px}
+  .cabecera .titulo small{font-weight:700;font-size:12px}
+  .cabecera .titulo span.val{font-weight:400}
+  .cabecera .sub{display:block;font-weight:900;font-size:15px;margin-top:2px}
+  .fila2{display:grid;grid-template-columns:1fr 1fr;border:1px solid #000;border-top:none}
+  .fila2>div{padding:6px 10px;border-right:1px solid #000;font-weight:700;background:#fff}
+  .fila2>div:last-child{border-right:none}
+  .fila2 span.val{font-weight:400}
+  table.formato{border-collapse:collapse;width:100%;table-layout:fixed}
+  .formato th,.formato td{border:1px solid #000;padding:3px;text-align:center;vertical-align:middle;height:44px;font-size:13px}
+  .formato th{background:var(--gris2);font-weight:700;font-size:12px}
+  .formato th.rot{width:78px;text-align:left;padding-left:6px}
+  .formato th.num{font-size:11px;line-height:1.1}
+  .formato th.num b{display:block;font-size:9.5px;font-weight:700;white-space:normal;overflow:hidden}
+  .formato th.tot{width:82px;background:var(--gris2)}
+  .formato td.total{font-weight:700}
+  .formato tr.firma-row td{height:56px}
+  .nota-sig{border:1px solid #000;border-top:none;padding:6px 10px;font-weight:700}
+  .nota-sig span{font-weight:400}
+  .cierre{font-weight:900;font-size:14px}
+  .gate{max-width:360px;margin:80px auto;background:#fff;padding:24px;border-radius:12px;text-align:center}
+  .gate input{font:inherit;font-size:22px;text-align:center;width:160px;padding:8px;border:2px solid var(--cafe);border-radius:8px}
+  .gate button{font:inherit;font-weight:700;margin-top:12px;padding:10px 18px;border-radius:8px;border:none;background:var(--guinda);color:#fff;cursor:pointer}
+  .hidden{display:none}
+  @media print{
+    @page{size:letter landscape;margin:12mm}
+    body{background:#fff;font-size:12px}
+    header,.estado,.lista,.barra,.nopr{display:none!important}
+    main{padding:0;max-width:none}
+    .detalle{display:block!important}
+    .hoja{padding:0;border-radius:0;page-break-after:always;margin:0;overflow:visible}
+    .hoja:last-child{page-break-after:auto}
+    .formato th,.formato td{height:40px}
+  }
+</style>
+</head>
+<body>
+<div id="gate" class="gate hidden">
+  <h2 style="margin-top:0;color:var(--cafe)">Historial de sesiones</h2>
+  <p>Escribe la clave del grupo</p>
+  <input id="pin" type="password" inputmode="numeric">
+  <br><button id="btnPin">Entrar</button>
+  <p id="pinErr" style="color:var(--terracota);display:none">Clave incorrecta.</p>
+</div>
+
+<div id="app" class="hidden">
+<header>
+  <h1>CAFAM · Historial de sesiones</h1>
+  <div class="acciones">
+    <button onclick="location.href='secretario.html'">Formato de sesión</button>
+    <button id="btnRecargar">Recargar</button>
+  </div>
+</header>
+<main>
+  <p class="estado" id="estado">Cargando sesiones…</p>
+  <div class="lista" id="lista"></div>
+
+  <div class="detalle hidden" id="detalle">
+    <div class="barra nopr">
+      <button id="btnVolver">← Volver a la lista</button>
+      <h2 id="tituloDet"></h2>
+      <button id="btnImprimir" class="primario">Imprimir / PDF</button>
+    </div>
+    <div class="hoja">
+      <div class="cabecera">
+        <div class="titulo">Formato General <small>(llenado por sesión)</small><span class="sub">ENTRADAS</span></div>
+        <div class="titulo">Responsable: <span class="val" id="resp1"></span></div>
+      </div>
+      <div class="fila2">
+        <div>Fecha de sesión: <span class="val" id="fec1"></span></div>
+        <div>Total de caja al inicio de la sesión: $ <span class="val" id="cajaIni"></span></div>
+      </div>
+      <table class="formato" id="tEntradas"></table>
+    </div>
+    <div class="hoja">
+      <div class="cabecera">
+        <div class="titulo">Formato General <small>(llenado por sesión)</small><span class="sub">SALIDAS</span></div>
+        <div class="titulo">Responsable: <span class="val" id="resp2"></span></div>
+      </div>
+      <div class="fila2">
+        <div>Fecha de sesión: <span class="val" id="fec2"></span></div>
+        <div>Total de caja al iniciar préstamos: $ <span class="val" id="cajaPre"></span></div>
+      </div>
+      <table class="formato" id="tSalidas"></table>
+      <div class="nota-sig">Fecha, hora y lugar para la siguiente sesión: <span id="sig"></span></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+/* ===== CONFIGURACIÓN (debe coincidir con secretario.html) ===== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5sUBH9rkKkJg-PWNXfxjzapGFx88ZC-H41VZFNT5yTJ5mKECzBbrizmTAF58yjKNo/exec";
+const PIN = "";   // usa la misma clave que en secretario.html
+const SOCIOS = [
+  "Mayra Chávez","Héctor Chávez","Ma. de Jesús Alcalá","Paulina Gallegos",
+  "Carlos Chávez","Miranda Chávez","Carolina Chávez","Eduardo Luna",
+  "Enrique Chávez","Cris Sánchez","Cosecha Colectiva"
+];
+/* ============================================================== */
+
+const $=id=>document.getElementById(id);
+const N=SOCIOS.length;
+const num=v=>{const x=parseFloat(String(v??"").replace(/[^0-9.\-]/g,""));return isNaN(x)?0:x};
+const fmt=n=>n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FILAS_E=[["multa","Pago de multas"],["interes","Pago de intereses"],["abono","Abonos a préstamo"],["ahorro","Compra acciones"]];
+const FILAS_S=[["prestamo","Préstamo $"],["plazo","Plazo"],["tasa","Interés %"]];
+const fechaLarga=f=>{const s=String(f||"").slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+"T12:00").toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"}):String(f||"")};
+
+let sesiones=[];
+
+function cabecera(){
+  let h="<tr><th class='rot'>Nombre del socio</th>";
+  SOCIOS.forEach((n,i)=>h+=`<th class="num">${i+1}<b>${esc(n)}</b></th>`);
+  return h+"<th class='tot'>Totales ⬇</th></tr>";
+}
+function tabla(filas,datos,extraFila){
+  let h=cabecera();
+  filas.forEach(([k,lab])=>{
+    /* omite filas vacías que ya no se usan (p. ej. interés separado en sesiones viejas) */
+    let t=0, celdas="";
+    for(let i=1;i<=N;i++){const v=datos[k+"_"+i];t+=num(v);celdas+=`<td>${esc(v||"")}</td>`;}
+    if(k==="interes"&&t===0)return;
+    const tot=(k==="plazo"||k==="tasa")?"":"$ "+fmt(t);
+    h+=`<tr><th class="rot">${lab}</th>${celdas}<td class="total">${tot}</td></tr>`;
+  });
+  h+=`<tr class="firma-row"><th class="rot">Firma</th>`;
+  for(let i=1;i<=N;i++)h+=`<td></td>`;
+  h+=`<td class="total">${extraFila}</td></tr>`;
+  return h;
+}
+function verSesion(idx){
+  const s=sesiones[idx]; if(!s)return;
+  $("tituloDet").textContent=`Sesión del ${fechaLarga(s.fecha)}  ·  id ${s.sesion_id}`;
+  $("resp1").textContent=$("resp2").textContent=s.responsable||"";
+  $("fec1").textContent=$("fec2").textContent=fechaLarga(s.fecha);
+  $("cajaIni").textContent=fmt(num(s.caja_inicio));
+  $("cajaPre").textContent=fmt(num(s.caja_inicio)+num(s.ingresos));
+  $("sig").textContent=s.siguiente||"";
+  $("tEntradas").innerHTML=tabla(FILAS_E,s.entradas||{},`<small>Total de Ingresos</small><br>$ ${fmt(num(s.ingresos))}`);
+  $("tSalidas").innerHTML=tabla(FILAS_S,s.salidas||{},`<small>Total en caja al cierre</small><br><span class="cierre">$ ${fmt(num(s.caja_cierre))}</span>`);
+  $("lista").classList.add("hidden");$("estado").classList.add("hidden");
+  $("detalle").classList.remove("hidden");window.scrollTo(0,0);
+}
+function pintarLista(){
+  if(!sesiones.length){$("lista").innerHTML="<p>Todavía no hay sesiones cerradas.</p>";return;}
+  let h=`<table><tr><th>Fecha</th><th>Responsable</th><th style="text-align:right">Caja inicio</th><th style="text-align:right">Ingresos</th><th style="text-align:right">Préstamos</th><th style="text-align:right">Caja cierre</th><th></th></tr>`;
+  sesiones.forEach((s,i)=>{
+    h+=`<tr><td>${esc(fechaLarga(s.fecha))}<br><small style="color:#888">${esc(s.sesion_id)}</small></td><td>${esc(s.responsable)}</td>
+      <td class="num">$ ${fmt(num(s.caja_inicio))}</td><td class="num">$ ${fmt(num(s.ingresos))}</td><td class="num">$ ${fmt(num(s.prestamos))}</td><td class="num"><b>$ ${fmt(num(s.caja_cierre))}</b></td>
+      <td><button type="button" data-i="${i}">Ver formato</button></td></tr>`;
+  });
+  $("lista").innerHTML=h+"</table>";
+  $("lista").querySelectorAll("button").forEach(b=>b.onclick=()=>verSesion(+b.dataset.i));
+}
+async function cargar(){
+  $("estado").textContent="Cargando sesiones…";$("estado").classList.remove("hidden");
+  try{
+    const r=await fetch(SCRIPT_URL+"?accion=sesiones&t="+Date.now());const j=await r.json();
+    if(!j.ok)throw new Error(j.error||"error");
+    sesiones=j.sesiones||[];
+    $("estado").textContent=`${sesiones.length} sesión(es) archivada(s). La más reciente aparece primero.`;
+  }catch(e){sesiones=[];$("estado").textContent="No se pudo cargar el historial (revisa la URL del script o la conexión).";}
+  pintarLista();
+}
+function iniciar(){$("app").classList.remove("hidden");cargar();}
+$("btnRecargar").onclick=cargar;
+$("btnVolver").onclick=()=>{$("detalle").classList.add("hidden");$("lista").classList.remove("hidden");$("estado").classList.remove("hidden");};
+$("btnImprimir").onclick=()=>window.print();
+if(PIN&&sessionStorage.getItem("cafam_pin")!==PIN){
+  $("gate").classList.remove("hidden");
+  $("btnPin").onclick=()=>{if($("pin").value===PIN){sessionStorage.setItem("cafam_pin",PIN);$("gate").classList.add("hidden");iniciar();}else $("pinErr").style.display="block";};
+}else iniciar();
+</script>
+</body>
+</html>

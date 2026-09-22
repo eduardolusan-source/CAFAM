@@ -40,6 +40,8 @@
   .error{background:#fff;border:3px solid var(--terracota);border-radius:16px;padding:20px;font-size:17px}
   .error textarea{width:100%;font:inherit;font-size:16px;margin-top:10px;min-height:110px;border-radius:8px;border:1px solid #ccc;padding:8px}
   .hidden{display:none}
+  .proxima{background:var(--dorado);color:var(--cafe);padding:10px 20px;font-size:17px;text-align:center}
+  .proxima b{font-weight:900}
   @media (max-width:380px){.nombres{grid-template-columns:1fr}}
 </style>
 </head>
@@ -48,6 +50,7 @@
   <h1>CAFAM · Grupo de ahorro</h1>
   <p>Registra lo que enviaste en esta sesión</p>
 </header>
+<div id="proxima" class="proxima hidden">Próxima sesión: <b id="proximaTxt"></b></div>
 <main>
 <div id="formulario">
   <section class="paso">
@@ -141,6 +144,10 @@ async function enviar(){
   }
 }
 $("btnEnviar").onclick=enviar;
+/* aviso de la siguiente sesión (lo escribe el secretario al cerrar) */
+fetch(SCRIPT_URL+"?t="+Date.now()).then(r=>r.json()).then(j=>{
+  if(j&&j.siguiente){$("proximaTxt").textContent=j.siguiente;$("proxima").classList.remove("hidden");}
+}).catch(()=>{});
 $("btnReintentar").onclick=()=>{$("fallo").classList.add("hidden");enviar();};
 $("btnOtro").onclick=()=>{campos.forEach(c=>$(c).value="");$("listo").classList.add("hidden");$("formulario").classList.remove("hidden");$("btnEnviar").textContent="Enviar al secretario";validar();};
 </script>
