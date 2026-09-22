@@ -23,6 +23,7 @@
   .nombres button.sel{background:var(--guinda);color:#fff;border-color:var(--guinda)}
   .campo{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:2px solid #d9c9b0;border-radius:12px;padding:10px 14px;margin-bottom:10px}
   .campo label{font-weight:700;font-size:19px}
+  .campo label small{display:block;font-weight:400;font-size:14px;color:#6b4a3a}
   .campo input{font:inherit;font-size:24px;width:150px;text-align:right;border:none;border-bottom:2px solid var(--dorado);padding:6px 4px;background:transparent;color:var(--tinta)}
   .campo input:focus{outline:none;border-bottom-color:var(--terracota)}
   .total{background:var(--rosa);border-radius:14px;padding:16px 18px;text-align:center;margin-top:6px}
@@ -57,8 +58,7 @@
   <section class="paso">
     <h2>2. ¿Cuánto enviaste?</h2>
     <p class="aviso" style="margin:0 0 10px">Deja en blanco lo que no aplique.</p>
-    <div class="campo"><label for="abono">Abono a préstamo</label><input id="abono" type="text" inputmode="decimal" placeholder="0"></div>
-    <div class="campo"><label for="interes">Interés</label><input id="interes" type="text" inputmode="decimal" placeholder="0"></div>
+    <div class="campo"><label for="abono">Abono a préstamo<br><small>capital e interés juntos</small></label><input id="abono" type="text" inputmode="decimal" placeholder="0"></div>
     <div class="campo"><label for="ahorro">Ahorro</label><input id="ahorro" type="text" inputmode="decimal" placeholder="0"></div>
     <div class="campo"><label for="multa">Multa</label><input id="multa" type="text" inputmode="decimal" placeholder="0"></div>
     <div class="total">
@@ -107,8 +107,8 @@ SOCIOS.forEach((n,i)=>{
 });
 const num=v=>{const x=parseFloat(String(v).replace(/[^0-9.]/g,""));return isNaN(x)?0:x};
 const fmt=n=>"$"+n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
-const campos=["abono","interes","ahorro","multa"];
-function leer(){const d={};campos.forEach(c=>d[c]=num($(c).value));d.total=d.abono+d.interes+d.ahorro+d.multa;return d}
+const campos=["abono","ahorro","multa"];
+function leer(){const d={};campos.forEach(c=>d[c]=num($(c).value));d.total=d.abono+d.ahorro+d.multa;return d}
 function validar(){
   const d=leer();$("total").textContent=fmt(d.total);
   const ok=socioSel&&d.total>0;
@@ -119,8 +119,7 @@ campos.forEach(c=>$(c).addEventListener("input",validar));
 
 function textoMensaje(d){
   const partes=[];
-  if(d.abono)partes.push("Abono "+d.abono.toFixed(2));
-  if(d.interes)partes.push("interés "+d.interes.toFixed(2));
+  if(d.abono)partes.push("Abono a préstamo "+d.abono.toFixed(2));
   if(d.ahorro)partes.push("ahorro "+d.ahorro.toFixed(2));
   if(d.multa)partes.push("multa "+d.multa.toFixed(2));
   return partes.join(", ")+", total "+d.total.toFixed(2)+" de "+SOCIOS[socioSel-1];
