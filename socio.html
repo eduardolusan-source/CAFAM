@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAFAM · Registrar mi movimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --guinda:#7B1A2E; --terracota:#C44B1B; --dorado:#E8A020; --cafe:#4A1A0E;
+    --crema:#FDF3E0; --rosa:#F5E8EC; --verde:#2E6B3E; --tinta:#2B1B16;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--crema);color:var(--tinta);font-family:"Nunito Sans",system-ui,sans-serif;font-size:20px;line-height:1.35}
+  header{background:var(--guinda);color:#fff;padding:18px 20px}
+  header h1{margin:0;font-size:22px;font-weight:900;letter-spacing:.3px}
+  header p{margin:4px 0 0;font-size:16px;opacity:.9}
+  main{max-width:560px;margin:0 auto;padding:20px 16px 60px}
+  .paso{margin-bottom:26px}
+  .paso h2{font-size:20px;margin:0 0 10px;color:var(--cafe)}
+  .nombres{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .nombres button{font:inherit;font-weight:700;font-size:18px;padding:16px 10px;border:2px solid var(--cafe);border-radius:12px;background:#fff;color:var(--cafe);cursor:pointer;min-height:64px}
+  .nombres button.sel{background:var(--guinda);color:#fff;border-color:var(--guinda)}
+  .campo{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:2px solid #d9c9b0;border-radius:12px;padding:10px 14px;margin-bottom:10px}
+  .campo label{font-weight:700;font-size:19px}
+  .campo input{font:inherit;font-size:24px;width:150px;text-align:right;border:none;border-bottom:2px solid var(--dorado);padding:6px 4px;background:transparent;color:var(--tinta)}
+  .campo input:focus{outline:none;border-bottom-color:var(--terracota)}
+  .total{background:var(--rosa);border-radius:14px;padding:16px 18px;text-align:center;margin-top:6px}
+  .total small{display:block;font-size:16px;color:var(--cafe)}
+  .total strong{display:block;font-size:44px;font-weight:900;color:var(--guinda);line-height:1.1}
+  .total em{display:block;font-style:normal;font-size:15px;color:#6b4a3a;margin-top:6px}
+  .enviar{width:100%;font:inherit;font-weight:900;font-size:22px;padding:18px;border:none;border-radius:14px;background:var(--terracota);color:#fff;cursor:pointer;margin-top:14px}
+  .enviar:disabled{background:#c9b8a8;cursor:not-allowed}
+  .aviso{margin-top:12px;font-size:16px;color:#6b4a3a}
+  .ok{background:#fff;border:3px solid var(--verde);border-radius:16px;padding:24px 20px;text-align:center}
+  .ok h2{color:var(--verde);margin:0 0 8px;font-size:26px}
+  .ok p{margin:6px 0;font-size:19px}
+  .ok button{font:inherit;font-weight:700;font-size:18px;margin-top:16px;padding:14px 20px;border-radius:12px;border:2px solid var(--cafe);background:#fff;color:var(--cafe);cursor:pointer}
+  .error{background:#fff;border:3px solid var(--terracota);border-radius:16px;padding:20px;font-size:17px}
+  .error textarea{width:100%;font:inherit;font-size:16px;margin-top:10px;min-height:110px;border-radius:8px;border:1px solid #ccc;padding:8px}
+  .hidden{display:none}
+  @media (max-width:380px){.nombres{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CAFAM · Grupo de ahorro</h1>
+  <p>Registra lo que enviaste en esta sesión</p>
+</header>
+<main>
+<div id="formulario">
+  <section class="paso">
+    <h2>1. ¿Quién eres?</h2>
+    <div class="nombres" id="nombres"></div>
+  </section>
+
+  <section class="paso">
+    <h2>2. ¿Cuánto enviaste?</h2>
+    <p class="aviso" style="margin:0 0 10px">Deja en blanco lo que no aplique.</p>
+    <div class="campo"><label for="abono">Abono a préstamo</label><input id="abono" type="text" inputmode="decimal" placeholder="0"></div>
+    <div class="campo"><label for="interes">Interés</label><input id="interes" type="text" inputmode="decimal" placeholder="0"></div>
+    <div class="campo"><label for="ahorro">Ahorro</label><input id="ahorro" type="text" inputmode="decimal" placeholder="0"></div>
+    <div class="campo"><label for="multa">Multa</label><input id="multa" type="text" inputmode="decimal" placeholder="0"></div>
+    <div class="total">
+      <small>Total que debe coincidir con tu transferencia</small>
+      <strong id="total">$0.00</strong>
+      <em>Sigue enviando tu comprobante al grupo de WhatsApp.</em>
+    </div>
+  </section>
+
+  <button class="enviar" id="btnEnviar" disabled>Enviar al secretario</button>
+  <p class="aviso" id="pista">Primero toca tu nombre.</p>
+</div>
+
+<div id="listo" class="ok hidden">
+  <h2>¡Recibido!</h2>
+  <p id="resumen"></p>
+  <p>Ya quedó anotado en el formato del secretario.</p>
+  <button id="btnOtro">Registrar otro movimiento</button>
+</div>
+
+<div id="fallo" class="error hidden">
+  <strong>No se pudo enviar.</strong> Revisa tu conexión e intenta de nuevo. Si sigue fallando, copia este mensaje y mándalo al grupo de WhatsApp; el secretario lo anota a mano:
+  <textarea id="mensaje" readonly></textarea>
+  <button class="enviar" id="btnReintentar" style="margin-top:10px">Intentar de nuevo</button>
+</div>
+</main>
+
+<script>
+/* ===== CONFIGURACIÓN (edita solo esta parte) ===== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5sUBH9rkKkJg-PWNXfxjzapGFx88ZC-H41VZFNT5yTJ5mKECzBbrizmTAF58yjKNo/exec";
+const SOCIOS = [
+  "Mayra Chávez","Héctor Chávez","Ma. de Jesús Alcalá","Paulina Gallegos",
+  "Carlos Chávez","Miranda Chávez","Carolina Chávez","Eduardo Luna",
+  "Enrique Chávez","Cris Sánchez","Cosecha Colectiva"
+];
+/* ================================================= */
+
+const $=id=>document.getElementById(id);
+let socioSel=null;
+const nombres=$("nombres");
+SOCIOS.forEach((n,i)=>{
+  const b=document.createElement("button");
+  b.type="button"; b.textContent=n;
+  b.onclick=()=>{socioSel=i+1;[...nombres.children].forEach(x=>x.classList.remove("sel"));b.classList.add("sel");validar();};
+  nombres.appendChild(b);
+});
+const num=v=>{const x=parseFloat(String(v).replace(/[^0-9.]/g,""));return isNaN(x)?0:x};
+const fmt=n=>"$"+n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const campos=["abono","interes","ahorro","multa"];
+function leer(){const d={};campos.forEach(c=>d[c]=num($(c).value));d.total=d.abono+d.interes+d.ahorro+d.multa;return d}
+function validar(){
+  const d=leer();$("total").textContent=fmt(d.total);
+  const ok=socioSel&&d.total>0;
+  $("btnEnviar").disabled=!ok;
+  $("pista").textContent=!socioSel?"Primero toca tu nombre.":(d.total>0?"":"Escribe al menos una cantidad.");
+}
+campos.forEach(c=>$(c).addEventListener("input",validar));
+
+function textoMensaje(d){
+  const partes=[];
+  if(d.abono)partes.push("Abono "+d.abono.toFixed(2));
+  if(d.interes)partes.push("interés "+d.interes.toFixed(2));
+  if(d.ahorro)partes.push("ahorro "+d.ahorro.toFixed(2));
+  if(d.multa)partes.push("multa "+d.multa.toFixed(2));
+  return partes.join(", ")+", total "+d.total.toFixed(2)+" de "+SOCIOS[socioSel-1];
+}
+async function enviar(){
+  const d=leer();
+  $("btnEnviar").disabled=true;$("btnEnviar").textContent="Enviando…";
+  const cuerpo={accion:"registro",socio_num:socioSel,socio:SOCIOS[socioSel-1],...d};
+  try{
+    const r=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(cuerpo),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    const j=await r.json(); if(!j.ok)throw new Error(j.error||"error");
+    $("formulario").classList.add("hidden");$("fallo").classList.add("hidden");
+    $("resumen").textContent=textoMensaje(d);
+    $("listo").classList.remove("hidden");window.scrollTo(0,0);
+  }catch(e){
+    $("mensaje").value=textoMensaje(d);
+    $("fallo").classList.remove("hidden");
+    $("btnEnviar").textContent="Enviar al secretario";validar();
+  }
+}
+$("btnEnviar").onclick=enviar;
+$("btnReintentar").onclick=()=>{$("fallo").classList.add("hidden");enviar();};
+$("btnOtro").onclick=()=>{campos.forEach(c=>$(c).value="");$("listo").classList.add("hidden");$("formulario").classList.remove("hidden");$("btnEnviar").textContent="Enviar al secretario";validar();};
+</script>
+</body>
+</html>
